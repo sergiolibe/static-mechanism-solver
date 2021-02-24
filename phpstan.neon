@@ -1,0 +1,35 @@
+parameters:
+	level: 6
+	paths:
+		- src
+		- public
+#	ignoreErrors:
+#		-
+#			message: '#Variable \$container might not be defined\.#'
+#			paths:
+#				- public
+#				- index.php
+#		-
+#			message: '#Variable \$logger might not be defined\.#'
+#			paths:
+#				- public/share_content.php
+#				- public/share_ds_card.php
+#				- public/track.php
+#		-
+#			message: '#Variable \$jwt_app_tracking might not be defined\.#'
+#			paths:
+#				- public/track.php
+#		-
+#			message: '#Variable \$[a-zA-Z_]+ might not be defined\.#'
+#			paths:
+#				- bootstrap.php
+#				- container_config.php
+#		-
+#			message: '#Property [a-zA-Z0-9\\_]+::\$contents type has no value type specified in iterable type array\.#'
+#			path: src/Card/StoreCard.php
+#		-
+#			message: '#Call to an undefined method ReflectionType::getName\(\)\.#'
+#			path: src/Tools/EntityMapper.php
+#		-
+#			message: "#Parameter \\#1 \\$error_handler of function set_error_handler expects \\(callable\\(int, string, string, int, array\\): bool\\)\\|null, array\\(\\$this\\([a-zA-Z0-9\\\\_]+\\), 'errorHandler'\\) given.#"
+#			path: src/Core/Log/Logger.php
