@@ -7,18 +7,29 @@ namespace SMSolver\Core\Math;
 class MatrixSolver
 {
 
+
     /**
      * Gaussian elimination
-     * @param float[][] $A matrix
-     * @param float[] $x vector
-     * @return float[] solution vector
+     * @param float[][] $A matrix n x n
+     * @param float[] $x vector 1 x n
+     * @return float[] solution vector 1 x n
      */
-    public static function solve(array $A, array $x): array
+    public static function solveAX(array $A, array $x): array
     {
         # Just make a single matrix
         for ($i = 0; $i < count($A); $i++) {
             $A[$i][] = $x[$i];
         }
+        return self::solve($A);
+    }
+
+    /**
+     * Gaussian elimination
+     * @param float[][] $A matrix n x (n+1)
+     * @return float[] solution vector 1 x n
+     */
+    public static function solve(array $A): array
+    {
         $n = count($A);
 
         for ($i = 0; $i < $n; $i++) {

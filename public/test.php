@@ -1,5 +1,7 @@
 <?php
 
+use SMSolver\Core\Models\ForceType;
+use SMSolver\Core\Models\NodeType;
 use SMSolver\Payload\SystemRequest;
 use SMSolver\Utils\OutputInfo;
 
@@ -23,19 +25,24 @@ $x = [
     $fa * (1),
 ];
 
-$result = \SMSolver\Core\Math\MatrixSolver::solve($A, $x);
+$result = \SMSolver\Core\Math\MatrixSolver::solveAx($A, $x);
 
 OutputInfo::pr($result);
 
 
 $data = [
     'nodes' => [
-        ['id' => 'n1', 'x' => 2.3, 'y' => -4.5],
-        ['id' => 'n2', 'x' => 4.3, 'y' => -5.5],
-        ['id' => 'n3', 'x' => 6.3, 'y' => -3.5],
+        ['id' => 'n1', 'x' => 0, 'y' => 0, 'type' => NodeType::U1U2()],
+        ['id' => 'n2', 'x' => 2, 'y' => 0, 'type' => NodeType::U2()],
+        ['id' => 'n3', 'x' => 0, 'y' => 1, 'type' => NodeType::FREE()],
     ],
     'beams' => [
         ['id' => 'b1', 'startNode' => 'n1', 'endNode' => 'n2'],
+        ['id' => 'b2', 'startNode' => 'n2', 'endNode' => 'n3'],
+        ['id' => 'b3', 'startNode' => 'n1', 'endNode' => 'n3'],
+    ],
+    'forces' => [
+        ['id' => 'f1', 'magnitude' => 1, 'angle' => 0, 'type' => ForceType::DEFINED(), 'node' => 'n3']
     ]
 ];
 
