@@ -24,8 +24,19 @@ class OutputInfo
         echo $data . PHP_EOL;
     }
 
-    public static function printJSONln(JsonSerializable $data, bool $pretty = false): void
+    /**
+     * @param bool|float|int|string|array<mixed>|JsonSerializable $data
+     * @param bool $pretty
+     */
+    public static function printJSONln(bool|float|int|string|array|JsonSerializable $data, bool $pretty = false): void
     {
         self::echoln(json_encode($data, $pretty ? JSON_PRETTY_PRINT : 0));
+    }
+
+    public static function printMatrix(array $matrix): void
+    {
+        foreach ($matrix as $row) {
+            self::printJSONln($row);
+        }
     }
 }

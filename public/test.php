@@ -1,55 +1,103 @@
 <?php
 
+use SMSolver\Core\Math\MatrixSolver;
+use SMSolver\Core\Math\VectorUtils;
 use SMSolver\Core\Models\ForceType;
 use SMSolver\Core\Models\NodeType;
 use SMSolver\Payload\SystemRequest;
 use SMSolver\Utils\OutputInfo;
 
-include __DIR__ . '/../bootstrap.php';
-
-
-$fa = 5;
-$dx = 123;
-$dy = 103;
-
-// x1 y1 x3 fb(y3)
-$A = [
-    [1, 0, 1,],//Sum X
-    [0, 1, 0],//Sum Y
-    [($dy + 0), ($dx + 0), ($dy - 1)],
-];
-
-$x = [
-    $fa,
-    0,
-    $fa * (1),
-];
-
-$result = \SMSolver\Core\Math\MatrixSolver::solveAx($A, $x);
-
-OutputInfo::pr($result);
+require __DIR__ . '/../bootstrap.php';
 
 
 $data = [
     'nodes' => [
-        ['id' => 'n1', 'x' => 0, 'y' => 0, 'type' => NodeType::U1U2()],
-        ['id' => 'n2', 'x' => 2, 'y' => 0, 'type' => NodeType::U2()],
-        ['id' => 'n3', 'x' => 0, 'y' => 1, 'type' => NodeType::FREE()],
+        [
+            'id' => 'n1',
+            'x' => 0,
+            'y' => 0,
+            'type' => NodeType::U1U2()
+        ],
+        [
+            'id' => 'n2',
+            'x' => -14,
+            'y' => 14,
+            'type' => NodeType::FREE()
+        ],
+        [
+            'id' => 'n3',
+            'x' => 50,
+            'y' => -2,
+            'type' => NodeType::JOINT()
+        ],
+        [
+            'id' => 'n4',
+            'x' => 17,
+            'y' => 14,
+            'type' => NodeType::U1U2()
+        ],
+        [
+            'id' => 'n5',
+            'x' => 52,
+            'y' => -21,
+            'type' => NodeType::FREE()
+        ],
     ],
     'beams' => [
-        ['id' => 'b1', 'startNode' => 'n1', 'endNode' => 'n2'],
-        ['id' => 'b2', 'startNode' => 'n2', 'endNode' => 'n3'],
-        ['id' => 'b3', 'startNode' => 'n1', 'endNode' => 'n3'],
+        [
+            'id' => 'b1',
+            'startNode' => 'n1',
+            'endNode' => 'n2'
+        ],
+        [
+            'id' => 'b2',
+            'startNode' => 'n2',
+            'endNode' => 'n3'
+        ],
+        [
+            'id' => 'b3',
+            'startNode' => 'n1',
+            'endNode' => 'n3'
+        ],
+        [
+            'id' => 'b4',
+            'startNode' => 'n3',
+            'endNode' => 'n5'
+        ],
+        [
+            'id' => 'b5',
+            'startNode' => 'n4',
+            'endNode' => 'n5'
+        ],
     ],
     'forces' => [
-        ['id' => 'f1', 'magnitude' => 1, 'angle' => 0, 'type' => ForceType::DEFINED(), 'node' => 'n3']
+        [
+            'id' => 'f1',
+            'magnitude' => 50,
+            'angle' => 0,
+            'type' => ForceType::DEFINED(),
+            'node' => 'n2'
+        ],
+        [
+            'id' => 'fx',
+            'angle' => 45,
+            'type' => ForceType::UNKNOWN(),
+            'node' => 'n5'
+        ]
     ]
 ];
 
 $systemRequest = SystemRequest::constructFromArray($data);
-OutputInfo::printJSONln($systemRequest, true);
+//OutputInfo::printJSONln($systemRequest, true);
+$Ax = $systemRequest->generateMatrix();
+OutputInfo::printMatrix($Ax);
 
-$scriptPath = get_included_files()[0];
-OutputInfo::pr($scriptPath);
-//2n=3+b
-//
+$result = MatrixSolver::solve($Ax);
+VectorUtils::scalarMultiply($result, -1);
+VectorUtils::roundVector($result);
+
+OutputInfo::printMatrix([
+    array_keys($systemRequest->getReferenceSymbolMatrix()),
+    $result
+]);
+//$systemRequest->generateMatrix();
