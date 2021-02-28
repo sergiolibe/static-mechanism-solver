@@ -8,45 +8,48 @@ use JsonSerializable;
 use RuntimeException;
 use SMSolver\Core\Axis;
 
-class Node implements Mappable, JsonSerializable
+class Node implements JsonSerializable
 {
-    private ?string $id = null;
-    private ?float $x = null;
-    private ?float $y = null;
-    private ?NodeType $type = null;
+//    private string $id = '_nodeId';
+//    private float $x = -1e3;
+//    private float $y = -1e3;
+//    private NodeType $type;
+
     /** @var Beam[] */
     private array $beams = [];
     /** @var Force[] */
     private array $forces = [];
+
+    /** @var string[]|null $symbols */
     private ?array $symbols = null;
     private ?string $XSymbol = null;
     private ?string $YSymbol = null;
 
+    public function __construct(
+        private NodeType $type,
+        private string $id = '_nodeId',
+        private float $x = -1e3,
+        private float $y = -1e3,
+    )
+    {
+    }
 
+
+    /**
+     * @param array<string,scalar> $data
+     * @return self
+     */
     public static function constructFromArray(array $data): self
     {
-        $instance = new self();
-        $instance->id = $data['id'];
-        $instance->x = $data['x'];
-        $instance->y = $data['y'];
-        $instance->type = $data['type'];
-        return $instance;
+        return new self(
+            new NodeType((string)$data['type']),
+            (string)$data['id'],
+            (float)$data['x'],
+            (float)$data['y'],
+        );
     }
 
-    public function jsonSerialize()
-    {
-        $arrayRepresentation = [];
-        $arrayRepresentation['id'] = $this->id;
-        $arrayRepresentation['x'] = $this->x;
-        $arrayRepresentation['y'] = $this->y;
-        $arrayRepresentation['symbols'] = $this->getSymbols();
-        $arrayRepresentation['type'] = $this->type;
-        $arrayRepresentation['beams'] = $this->getBeamsIds();
-        $arrayRepresentation['forces'] = $this->getForcesIds();
-        return $arrayRepresentation;
-    }
-
-    public function getN()
+    public function getN(): int
     {
         $n = 0;
         if ($this->type->equals(NodeType::U1U2()))
@@ -84,37 +87,10 @@ class Node implements Mappable, JsonSerializable
         };
     }
 
-    public function getSymbols(): array
-    {
-        if (is_null($this->symbols)) {
-            $this->symbols = [];
-            if ($this->hasXSymbol())
-                $this->symbols[] = $this->getXSymbol();
-
-            if ($this->hasYSymbol())
-                $this->symbols[] = $this->getYSymbol();
-        }
-
-        return $this->symbols;
-    }
-
-    public function getXSymbol(): string
-    {
-        if (is_null($this->XSymbol))
-            $this->XSymbol = 'S' . $this->getId() . 'x';
-
-        return $this->XSymbol;
-    }
-
-
-    public function getYSymbol(): string
-    {
-        if (is_null($this->YSymbol))
-            $this->YSymbol = 'S' . $this->getId() . 'y';
-
-        return $this->YSymbol;
-    }
-
+    /**
+     * @param Axis $axis
+     * @return array<string,float>
+     */
     public function getValuesBySymbolByAxis(Axis $axis): array
     {
         $valuesBySymbol = [];
@@ -133,7 +109,6 @@ class Node implements Mappable, JsonSerializable
                 if ($force->getType()->equals(ForceType::DEFINED()))
                     $valuesBySymbol['R'] = $force->getMagnitude() * $force->getCos();
             }
-
         } elseif ($axis->equals(Axis::Y())) {
             foreach ($this->beams as $beam) {
                 $valuesBySymbol[$beam->getSymbol()] = $beam->getSinOnNode($this);
@@ -156,6 +131,14 @@ class Node implements Mappable, JsonSerializable
         return $valuesBySymbol;
     }
 
+    public static function validateInstance(mixed $instance): self
+    {
+        if (!$instance instanceof Node)
+            throw new RuntimeException('Expected instances of Node, received: ' . json_encode($instance));
+
+        return $instance;
+    }
+
     // Adders
 
     public function addBeam(Beam $beam): void
@@ -170,19 +153,52 @@ class Node implements Mappable, JsonSerializable
 
     // Getters
 
-    public function getId(): ?string
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function getX(): ?float
+    public function getX(): float
     {
         return $this->x;
     }
 
-    public function getY(): ?float
+    public function getY(): float
     {
         return $this->y;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSymbols(): array
+    {
+        if (is_null($this->symbols)) {
+            $this->symbols = [];
+            if ($this->hasXSymbol())
+                $this->symbols[] = $this->getXSymbol();
+
+            if ($this->hasYSymbol())
+                $this->symbols[] = $this->getYSymbol();
+        }
+
+        return $this->symbols;
+    }
+
+    public function getXSymbol(): string
+    {
+        if (is_null($this->XSymbol))
+            $this->XSymbol = 'S' . $this->getId() . 'x';
+
+        return $this->XSymbol;
+    }
+
+    public function getYSymbol(): string
+    {
+        if (is_null($this->YSymbol))
+            $this->YSymbol = 'S' . $this->getId() . 'y';
+
+        return $this->YSymbol;
     }
 
     /**
@@ -200,5 +216,26 @@ class Node implements Mappable, JsonSerializable
     {
         return !empty($this->forces) ? array_keys($this->forces) : [];
     }
+
     //Setters
+
+    //Interfaces
+
+    public function jsonSerialize()
+    {
+        $arrayRepresentation = [];
+        $arrayRepresentation['id'] = $this->id;
+        $arrayRepresentation['x'] = $this->x;
+        $arrayRepresentation['y'] = $this->y;
+        $arrayRepresentation['symbols'] = $this->getSymbols();
+        $arrayRepresentation['type'] = $this->type;
+        $arrayRepresentation['beams'] = $this->getBeamsIds();
+        $arrayRepresentation['forces'] = $this->getForcesIds();
+        return $arrayRepresentation;
+    }
+
+    public function __toString()
+    {
+        return 'Node [' . $this->id . '] (' . $this->x . ',' . $this->y . ') {' . $this->type . '}';
+    }
 }

@@ -3,44 +3,41 @@ declare(strict_types=1);
 
 namespace SMSolver\Core\Models;
 
+use RuntimeException;
 use JsonSerializable;
 
-class Force implements Mappable, JsonSerializable
+class Force implements JsonSerializable
 {
-    private ?string $id = null;
-    private ?float $magnitude = null;
-    private ?float $angle = null;
-    private ?float $radAngle = null;
-    private ?Node $node = null;
-    private ForceType $type;
+    use Vector;
+
     private ?string $symbol = null;
 
-    private function __construct()
+    public function __construct(
+        private ForceType $type,
+        private Node $node,
+        private string $id = '_forceId',
+        float $magnitude = -1e3,
+        float $angle = -1e3,
+    )
     {
+        $this->magnitude = $magnitude;
+        $this->angle = $angle;
+        $this->radAngle = $this->toRadians($this->angle);
     }
 
+    /**
+     * @param array<string,scalar|Node> $data
+     * @return self
+     */
     public static function constructFromArray(array $data): self
     {
-        $instance = new self();
-        $instance->id = $data['id'];
-        $instance->type = $data['type'];
-        if ($instance->type->equals(ForceType::DEFINED()))
-            $instance->magnitude = $data['magnitude'];
-        $instance->angle = $data['angle'];
-        $instance->radAngle = $instance->toRadians($instance->angle);
-        $instance->node = $data['node'];
-        return $instance;
-    }
-
-    public function jsonSerialize()
-    {
-        $arrayRepresentation = [];
-        $arrayRepresentation['id'] = $this->id;
-        $arrayRepresentation['magnitude'] = $this->magnitude;
-        $arrayRepresentation['angle'] = $this->angle;
-        $arrayRepresentation['node'] = $this->node->getId();
-        $arrayRepresentation['type'] = $this->type;
-        return $arrayRepresentation;
+        return new self(
+            new ForceType((string)$data['type']),
+            Node::validateInstance($data['node']),
+            (string)$data['id'],
+            (float)($data['magnitude']??0),
+            (float)$data['angle'],
+        );
     }
 
     public function hasSymbol(): bool
@@ -58,38 +55,42 @@ class Force implements Mappable, JsonSerializable
 
         return $this->symbol;
     }
+
     // Adders
-
-
     // Getters
 
-    public function getId(): ?string
+
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function getType(): ?ForceType
+    public function getType(): ForceType
     {
         return $this->type;
     }
 
-    public function getMagnitude(): ?float
+    // Interfaces
+
+    public function jsonSerialize()
     {
-        return $this->magnitude;
+        $arrayRepresentation = [];
+        $arrayRepresentation['id'] = $this->id;
+        $arrayRepresentation['magnitude'] = $this->magnitude;
+        $arrayRepresentation['angle'] = $this->angle;
+        $arrayRepresentation['node'] = $this->node->getId();
+        $arrayRepresentation['type'] = $this->type;
+        return $arrayRepresentation;
     }
 
-    public function getCos()
+    public function __toString()
     {
-        return cos($this->radAngle);
-    }
-
-    public function getSin()
-    {
-        return sin($this->radAngle);
-    }
-
-    private function toRadians(float $degrees): float
-    {
-        return $degrees * M_PI / 180;
+        return
+            'force'
+            . ' [' . $this->id . ']'
+            . ' (' . $this->node->getX() . ',' . $this->node->getY() . ')'
+            . ' {' . $this->type . '}'
+            . ' ' . $this->magnitude . 'N'
+            . '@' . $this->angle . '° (' . $this->radAngle . ' rad)';
     }
 }

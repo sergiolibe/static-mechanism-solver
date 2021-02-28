@@ -1,8 +1,9 @@
 parameters:
 	level: 6
 	paths:
-		- src
-		- public
+#		- src
+		- src/Payload/SystemRequest.php
+#		- public
 #	ignoreErrors:
 #		-
 #			message: '#Variable \$container might not be defined\.#'

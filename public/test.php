@@ -16,31 +16,31 @@ $data = [
             'id' => 'n1',
             'x' => 0,
             'y' => 0,
-            'type' => NodeType::U1U2()
+            'type' => NodeType::U1U2()->getValue()
         ],
         [
             'id' => 'n2',
             'x' => -14,
             'y' => 14,
-            'type' => NodeType::FREE()
+            'type' => NodeType::FREE()->getValue()
         ],
         [
             'id' => 'n3',
             'x' => 50,
             'y' => -2,
-            'type' => NodeType::JOINT()
+            'type' => NodeType::JOINT()->getValue()
         ],
         [
             'id' => 'n4',
             'x' => 17,
             'y' => 14,
-            'type' => NodeType::U1U2()
+            'type' => NodeType::U1U2()->getValue()
         ],
         [
             'id' => 'n5',
             'x' => 52,
             'y' => -21,
-            'type' => NodeType::FREE()
+            'type' => NodeType::FREE()->getValue()
         ],
     ],
     'beams' => [
@@ -75,17 +75,19 @@ $data = [
             'id' => 'f1',
             'magnitude' => 50,
             'angle' => 0,
-            'type' => ForceType::DEFINED(),
+            'type' => ForceType::DEFINED()->getValue(),
             'node' => 'n2'
         ],
         [
             'id' => 'fx',
             'angle' => 45,
-            'type' => ForceType::UNKNOWN(),
+            'type' => ForceType::UNKNOWN()->getValue(),
             'node' => 'n5'
         ]
     ]
 ];
+
+OutputInfo::printJSONln($data);
 
 $systemRequest = SystemRequest::constructFromArray($data);
 //OutputInfo::printJSONln($systemRequest, true);

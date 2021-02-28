@@ -36,7 +36,7 @@ class MatrixSolver
             # Search for maximum in this column
             $maxEl = abs($A[$i][$i]);
             $maxRow = $i;
-            for ($k = $i + 1; $k < $n; $k++) {
+            for ($k = $i + 1; $k < $n; $k++) {//echo 'inspecting $A['.$k.']['.$i.']'.PHP_EOL;
                 if (abs($A[$k][$i]) > $maxEl) {
                     $maxEl = abs($A[$k][$i]);
                     $maxRow = $k;

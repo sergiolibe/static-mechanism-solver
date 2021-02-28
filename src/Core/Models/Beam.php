@@ -7,23 +7,31 @@ namespace SMSolver\Core\Models;
 use JsonSerializable;
 use RuntimeException;
 
-class Beam implements Mappable, JsonSerializable
+class Beam implements JsonSerializable
 {
-    private ?string $id = null;
-    private ?Node $startNode = null;
-    private ?Node $endNode = null;
-
     //cached values
     private ?string $symbol = null;
     private ?float $longitude = null;
 
+    public function __construct(
+        private Node $startNode,
+        private Node $endNode,
+        private string $id = '_beamId',
+    )
+    {
+    }
+
+    /**
+     * @param array<string,scalar|Node> $data
+     * @return self
+     */
     public static function constructFromArray(array $data): self
     {
-        $instance = new self();
-        $instance->id = $data['id'];
-        $instance->startNode = $data['startNode'];
-        $instance->endNode = $data['endNode'];
-        return $instance;
+        return new self(
+            Node::validateInstance($data['startNode']),
+            Node::validateInstance($data['endNode']),
+            (string)$data['id'],
+        );
     }
 
     public function jsonSerialize()
@@ -37,7 +45,7 @@ class Beam implements Mappable, JsonSerializable
 
     // Getters
 
-    public function getId(): ?string
+    public function getId(): string
     {
         return $this->id;
     }
@@ -63,13 +71,13 @@ class Beam implements Mappable, JsonSerializable
     public function getCosOnNode(Node $node): float
     {
         if ($this->startNode->getId() === $node->getId()) {
-            $dX = $this->endNode->getX()-$this->startNode->getX();
-            return $dX/$this->getLongitude();
+            $dX = $this->endNode->getX() - $this->startNode->getX();
+            return $dX / $this->getLongitude();
         }
 
         if ($this->endNode->getId() === $node->getId()) {
             $dX = $this->startNode->getX() - $this->endNode->getX();
-            return $dX/$this->getLongitude();
+            return $dX / $this->getLongitude();
         }
 
         throw new RuntimeException('Node [' . $node->getId() . '] is not the start or end of this beam (' . $this->id . ')');
@@ -78,13 +86,13 @@ class Beam implements Mappable, JsonSerializable
     public function getSinOnNode(Node $node): float
     {
         if ($this->startNode->getId() === $node->getId()) {
-            $dY = $this->endNode->getY()-$this->startNode->getY();
-            return $dY/$this->getLongitude();
+            $dY = $this->endNode->getY() - $this->startNode->getY();
+            return $dY / $this->getLongitude();
         }
 
         if ($this->endNode->getId() === $node->getId()) {
             $dY = $this->startNode->getY() - $this->endNode->getY();
-            return $dY/$this->getLongitude();
+            return $dY / $this->getLongitude();
         }
 
         throw new RuntimeException('Node [' . $node->getId() . '] is not the start or end of this beam (' . $this->id . ')');

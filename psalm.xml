@@ -1,17 +1,19 @@
 <?xml version="1.0"?>
 <psalm
-    errorLevel="8"
-    resolveFromConfigFile="true"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="https://getpsalm.org/schema/config"
-    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+        errorLevel="8"
+        resolveFromConfigFile="true"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="https://getpsalm.org/schema/config"
+        xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
-        <directory name="src" />
-        <directory name="public" />
-<!--        <file name="*.php" />-->
+        <file name="src/Payload/SystemRequest.php"/>
+        <!--        <directory name="src"/>-->
+        <!--        <directory name="public" />-->
+        <!--        <file name="*.php" />-->
         <ignoreFiles>
-            <directory name="vendor" />
+            <directory name="vendor"/>
+            <file name="src/Utils/OutputInfo.php"/>
         </ignoreFiles>
     </projectFiles>
 

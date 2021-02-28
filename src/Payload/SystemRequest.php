@@ -12,11 +12,11 @@ use SMSolver\Core\Math\VectorUtils;
 use SMSolver\Core\Models\Beam;
 use SMSolver\Core\Models\Force;
 use SMSolver\Core\Models\ForceType;
-use SMSolver\Core\Models\Mappable;
 use SMSolver\Core\Models\Node;
+use SMSolver\Core\Models\NodeType;
 use SMSolver\Utils\OutputInfo;
 
-class SystemRequest implements Mappable, JsonSerializable
+class SystemRequest implements JsonSerializable
 {
     /** @var Node[] $nodes */
     private array $nodes = [];
@@ -29,6 +29,10 @@ class SystemRequest implements Mappable, JsonSerializable
 
     private array $referenceSymbolMatrix = [];
 
+    /**
+     * @param array<string,array<array<string,scalar>>> $data
+     * @return self
+     */
     public static function constructFromArray(array $data): self
     {
         $instance = new self();
@@ -41,14 +45,15 @@ class SystemRequest implements Mappable, JsonSerializable
 
         foreach ($data['beams'] as $beamData) {
 
-            $beamDataWithInstances = $beamData;
-            $startNode = $instance->getNodeById($beamData['startNode']);
-            $beamDataWithInstances['startNode'] = $startNode;
+            $startNode = $instance->getNodeById((string)$beamData['startNode']);
+            $beamData['_startNode'] = $beamData['startNode'];
+            $beamData['startNode'] = $startNode;
 
-            $endNode = $instance->getNodeById($beamData['endNode']);
-            $beamDataWithInstances['endNode'] = $endNode;
+            $endNode = $instance->getNodeById((string)$beamData['endNode']);
+            $beamData['_endNode'] = $beamData['endNode'];
+            $beamData['endNode'] = $endNode;
 
-            $beam = Beam::constructFromArray($beamDataWithInstances);
+            $beam = Beam::constructFromArray($beamData);
 
             $startNode->addBeam($beam);
             $endNode->addBeam($beam);
@@ -59,12 +64,11 @@ class SystemRequest implements Mappable, JsonSerializable
 
         foreach ($data['forces'] as $forceData) {
 
-            $forceDataWithInstances = $forceData;
-            $forceNode = $instance->getNodeById($forceData['node']);
-            $forceDataWithInstances['node'] = $forceNode;
-            $forceDataWithInstances['type'] = ForceType::from($forceData['type']);
+            $forceNode = $instance->getNodeById((string)$forceData['node']);
+            $forceData['_node'] = $forceData['node'];
+            $forceData['node'] = $forceNode;
 
-            $force = Force::constructFromArray($forceDataWithInstances);
+            $force = Force::constructFromArray($forceData);
 
             $forceNode->addForce($force);
 
@@ -119,6 +123,9 @@ class SystemRequest implements Mappable, JsonSerializable
         $this->forces[$force->getId()] = $force;
     }
 
+    /**
+     * @return float[][]
+     */
     public function generateMatrix(): array
     {
         $n = $this->calcN();
@@ -129,10 +136,10 @@ class SystemRequest implements Mappable, JsonSerializable
 
         $Ax = VectorUtils::zerosMatrix($c - 1, $c);
 
-        $i=0;
+        $i = 0;
         foreach ($this->nodes as $node) {
 
-            OutputInfo::echoln('using node ' . $node->getId() . ' with $i: '.$i);
+//            OutputInfo::echoln('using node ' . $node->getId() . ' with $i: '.$i);
             //X for $node
             $valuesBySymbol = $node->getValuesBySymbolByAxis(Axis::X());
             foreach ($valuesBySymbol as $symbol => $value) {
@@ -142,9 +149,9 @@ class SystemRequest implements Mappable, JsonSerializable
             //Y for $node
             $valuesBySymbol = $node->getValuesBySymbolByAxis(Axis::Y());
             foreach ($valuesBySymbol as $symbol => $value) {
-                $Ax[$i+1][$this->referenceSymbolMatrix[$symbol]] = $value;
+                $Ax[$i + 1][$this->referenceSymbolMatrix[$symbol]] = $value;
             }
-            $i+=2;
+            $i += 2;
         }
 //        echo json_encode($Ax);
 //        die();
@@ -158,6 +165,12 @@ class SystemRequest implements Mappable, JsonSerializable
 
     private function buildReferenceSymbolMatrix(): void
     {
+
+
+        // build $reactions array from nodes, beams and incognito force
+        // then build referenceSymbolMatrix from this array
+
+
         foreach ($this->beams as $beam)
             $this->referenceSymbolMatrix[] = $beam->getSymbol();
 
@@ -179,10 +192,10 @@ class SystemRequest implements Mappable, JsonSerializable
         $this->referenceSymbolMatrix = $tempReferenceSymbolMatrix;
     }
 
-    private function buildBaseMatrix(): array
-    {
-
-    }
+//    private function buildBaseMatrix(): array
+//    {
+//
+//    }
 
     private function calcN(): int
     {
