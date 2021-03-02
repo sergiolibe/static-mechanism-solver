@@ -22,8 +22,8 @@ class Node implements JsonSerializable
 
     /** @var string[]|null $symbols */
     private ?array $symbols = null;
-    private ?string $XSymbol = null;
-    private ?string $YSymbol = null;
+    private ?string $U1Symbol = null;
+    private ?string $U2Symbol = null;
 
     public function __construct(
         private NodeType $type,
@@ -66,10 +66,10 @@ class Node implements JsonSerializable
 
     public function hasSymbols(): bool
     {
-        return $this->hasXSymbol() || $this->hasYSymbol();
+        return $this->hasU1Symbol() || $this->hasU2Symbol();
     }
 
-    public function hasXSymbol(): bool
+    public function hasU1Symbol(): bool
     {
         return match ($this->type->getValue()) {
             NodeType::U1()->getValue(),
@@ -78,7 +78,7 @@ class Node implements JsonSerializable
         };
     }
 
-    public function hasYSymbol(): bool
+    public function hasU2Symbol(): bool
     {
         return match ($this->type->getValue()) {
             NodeType::U2()->getValue(),
@@ -94,35 +94,32 @@ class Node implements JsonSerializable
     public function getValuesBySymbolByAxis(Axis $axis): array
     {
         $valuesBySymbol = [];
+        $R = ReactionType::RESULT()->getValue();
         if ($axis->equals(Axis::X())) {
-            foreach ($this->beams as $beam) {
+            foreach ($this->beams as $beam)
                 $valuesBySymbol[$beam->getSymbol()] = $beam->getCosOnNode($this);
-            }
 
-            if ($this->hasXSymbol()) {
-                $valuesBySymbol[$this->getXSymbol()] = 1;
-            }
+            if ($this->hasU1Symbol())
+                $valuesBySymbol[$this->getU1Symbol()] = 1;
 
             foreach ($this->forces as $force) {
                 if ($force->getType()->equals(ForceType::UNKNOWN()))
                     $valuesBySymbol[$force->getSymbol()] = $force->getCos();
                 if ($force->getType()->equals(ForceType::DEFINED()))
-                    $valuesBySymbol['R'] = $force->getMagnitude() * $force->getCos();
+                    $valuesBySymbol[$R] = $force->getMagnitude() * $force->getCos();
             }
         } elseif ($axis->equals(Axis::Y())) {
-            foreach ($this->beams as $beam) {
+            foreach ($this->beams as $beam)
                 $valuesBySymbol[$beam->getSymbol()] = $beam->getSinOnNode($this);
-            }
 
-            if ($this->hasYSymbol()) {
-                $valuesBySymbol[$this->getYSymbol()] = 1;
-            }
+            if ($this->hasU2Symbol())
+                $valuesBySymbol[$this->getU2Symbol()] = 1;
 
             foreach ($this->forces as $force) {
                 if ($force->getType()->equals(ForceType::UNKNOWN()))
                     $valuesBySymbol[$force->getSymbol()] = $force->getSin();
                 if ($force->getType()->equals(ForceType::DEFINED()))
-                    $valuesBySymbol['R'] = $force->getMagnitude() * $force->getSin();
+                    $valuesBySymbol[$R] = $force->getMagnitude() * $force->getSin();
             }
 
         } else {
@@ -168,37 +165,26 @@ class Node implements JsonSerializable
         return $this->y;
     }
 
-    /**
-     * @return string[]
-     */
-    public function getSymbols(): array
+    public function getU1Symbol(): string
     {
-        if (is_null($this->symbols)) {
-            $this->symbols = [];
-            if ($this->hasXSymbol())
-                $this->symbols[] = $this->getXSymbol();
+        if(!$this->hasU1Symbol())
+            throw new RuntimeException('NodeType doesn\'t have U1Symbol (' . $this->type . ')');
 
-            if ($this->hasYSymbol())
-                $this->symbols[] = $this->getYSymbol();
-        }
+        if (is_null($this->U1Symbol))
+            $this->U1Symbol = 'Sx_' . $this->getId();
 
-        return $this->symbols;
+        return $this->U1Symbol;
     }
 
-    public function getXSymbol(): string
+    public function getU2Symbol(): string
     {
-        if (is_null($this->XSymbol))
-            $this->XSymbol = 'S' . $this->getId() . 'x';
+        if(!$this->hasU2Symbol())
+            throw new RuntimeException('NodeType doesn\'t have U2Symbol (' . $this->type . ')');
 
-        return $this->XSymbol;
-    }
+        if (is_null($this->U2Symbol))
+            $this->U2Symbol = 'Sy_' . $this->getId();
 
-    public function getYSymbol(): string
-    {
-        if (is_null($this->YSymbol))
-            $this->YSymbol = 'S' . $this->getId() . 'y';
-
-        return $this->YSymbol;
+        return $this->U2Symbol;
     }
 
     /**
@@ -217,6 +203,11 @@ class Node implements JsonSerializable
         return !empty($this->forces) ? array_keys($this->forces) : [];
     }
 
+    public function getType(): NodeType
+    {
+        return $this->type;
+    }
+
     //Setters
 
     //Interfaces
@@ -227,7 +218,6 @@ class Node implements JsonSerializable
         $arrayRepresentation['id'] = $this->id;
         $arrayRepresentation['x'] = $this->x;
         $arrayRepresentation['y'] = $this->y;
-        $arrayRepresentation['symbols'] = $this->getSymbols();
         $arrayRepresentation['type'] = $this->type;
         $arrayRepresentation['beams'] = $this->getBeamsIds();
         $arrayRepresentation['forces'] = $this->getForcesIds();

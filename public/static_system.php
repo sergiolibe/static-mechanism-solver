@@ -46,13 +46,8 @@ if ($action === 'solve_system') {
     $result = MatrixSolver::solve($Ax);
     VectorUtils::scalarMultiply($result, -1);
     VectorUtils::roundVector($result);
-    $keys = array_keys($systemRequest->getReferenceSymbolMatrix());
-    array_pop($keys);
-    $response = array_combine(
-    $keys,
-        $result
-    );
 
-    ResponseBuilder::success(['list_of_reactions' => $response]);
+    $reactions = $systemRequest->mapReactionsWithResults($result);
+    ResponseBuilder::success(['list_of_reactions' => $reactions]);
     return;
 }

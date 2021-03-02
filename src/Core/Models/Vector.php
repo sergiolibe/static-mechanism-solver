@@ -25,9 +25,9 @@ trait Vector
         return sin($this->radAngle);
     }
 
-    public function getRadAngle(): float
+    public function getAngle(): float
     {
-        return $this->radAngle;
+        return $this->angle;
     }
 
     private function toRadians(float $degrees): float

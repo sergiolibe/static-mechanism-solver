@@ -51,7 +51,7 @@ class Force implements JsonSerializable
     public function getSymbol(): string
     {
         if (is_null($this->symbol))
-            $this->symbol = 'F' . $this->id;
+            $this->symbol = 'F_' . $this->id;
 
         return $this->symbol;
     }

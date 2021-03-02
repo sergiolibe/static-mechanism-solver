@@ -14,6 +14,8 @@ use SMSolver\Core\Models\Force;
 use SMSolver\Core\Models\ForceType;
 use SMSolver\Core\Models\Node;
 use SMSolver\Core\Models\NodeType;
+use SMSolver\Core\Models\Reaction;
+use SMSolver\Core\Models\ReactionType;
 use SMSolver\Utils\OutputInfo;
 
 class SystemRequest implements JsonSerializable
@@ -26,6 +28,9 @@ class SystemRequest implements JsonSerializable
 
     /** @var Force[] $forces */
     private array $forces = [];
+
+    /** @var Reaction[] $reactions */
+    private array $reactions = [];
 
     private array $referenceSymbolMatrix = [];
 
@@ -132,6 +137,8 @@ class SystemRequest implements JsonSerializable
 
         $this->buildReferenceSymbolMatrix();
 
+//        OutputInfo::printJSONln($this->referenceSymbolMatrix);
+//        die();
         $c = count($this->referenceSymbolMatrix);
 
         $Ax = VectorUtils::zerosMatrix($c - 1, $c);
@@ -166,30 +173,26 @@ class SystemRequest implements JsonSerializable
     private function buildReferenceSymbolMatrix(): void
     {
 
-
         // build $reactions array from nodes, beams and incognito force
         // then build referenceSymbolMatrix from this array
 
+        if (empty($this->reactions)) {
+            foreach ($this->beams as $beam)
+                $this->reactions[] = Reaction::constructFromBeam($beam);
 
-        foreach ($this->beams as $beam)
-            $this->referenceSymbolMatrix[] = $beam->getSymbol();
+            foreach ($this->nodes as $node)
+                foreach (Reaction::constructFromNode($node) as $reaction)
+                    $this->reactions[] = $reaction;
 
-        foreach ($this->nodes as $node)
-            if ($node->hasSymbols())
-                foreach ($node->getSymbols() as $symbol)
-                    $this->referenceSymbolMatrix[] = $symbol;
+            foreach ($this->forces as $force)
+                if (ForceType::UNKNOWN()->equals($force->getType()))
+                    $this->reactions[] = Reaction::constructFromForce($force);
 
-        foreach ($this->forces as $force)
-            if ($force->hasSymbol())
-                $this->referenceSymbolMatrix[] = $force->getSymbol();
+            $this->reactions[] = Reaction::resultReaction();
+        }
 
-        $this->referenceSymbolMatrix[] = 'R';
-
-        $tempReferenceSymbolMatrix = [];
-        foreach ($this->referenceSymbolMatrix as $intIndex => $symbol)
-            $tempReferenceSymbolMatrix[$symbol] = $intIndex;
-
-        $this->referenceSymbolMatrix = $tempReferenceSymbolMatrix;
+        foreach ($this->reactions as $intIndex => $reaction)
+            $this->referenceSymbolMatrix[$reaction->getSymbol()] = $intIndex;
     }
 
 //    private function buildBaseMatrix(): array
@@ -210,5 +213,20 @@ class SystemRequest implements JsonSerializable
     public function getReferenceSymbolMatrix(): array
     {
         return $this->referenceSymbolMatrix;
+    }
+
+    /**
+     * @param array $result
+     * @return Reaction[]
+     */
+    public function mapReactionsWithResults(array $result): array
+    {
+        $reactions = array_filter($this->reactions,
+            fn(Reaction $reaction) => !ReactionType::RESULT()->equals($reaction->getType())
+        );
+        foreach ($reactions as $intIndex => $reaction)
+            $reaction->setMagnitude($result[$intIndex]);
+
+        return $reactions;
     }
 }

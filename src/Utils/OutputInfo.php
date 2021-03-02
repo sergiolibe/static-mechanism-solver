@@ -5,6 +5,7 @@ namespace SMSolver\Utils;
 
 
 use JsonSerializable;
+use Stringable;
 
 class OutputInfo
 {

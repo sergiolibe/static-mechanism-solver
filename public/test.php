@@ -102,4 +102,8 @@ OutputInfo::printMatrix([
     array_keys($systemRequest->getReferenceSymbolMatrix()),
     $result
 ]);
+
+$reactions = $systemRequest->mapReactionsWithResults($result);
+
+OutputInfo::printMatrix($reactions);
 //$systemRequest->generateMatrix();

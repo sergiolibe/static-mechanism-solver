@@ -12,6 +12,7 @@ use MyCLabs\Enum\Enum;
  * @method static ReactionType U2()
  * @method static ReactionType BEAM()
  * @method static ReactionType FORCE()
+ * @method static ReactionType RESULT()
  *
  * @psalm-immutable
  */
@@ -21,5 +22,6 @@ class ReactionType extends Enum
     private const U2 = 'U2';
     private const BEAM = 'BEAM';
     private const FORCE = 'FORCE';
+    private const RESULT = 'RESULT';
 }
 

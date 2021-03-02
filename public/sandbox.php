@@ -4,12 +4,14 @@ use SMSolver\Core\Models\Force;
 use SMSolver\Core\Models\ForceType;
 use SMSolver\Core\Models\Node;
 use SMSolver\Core\Models\NodeType;
+use SMSolver\Core\Models\Reaction;
+use SMSolver\Core\Models\ReactionType;
 use SMSolver\Utils\OutputInfo;
 
 require __DIR__ . '/../bootstrap.php';
 
 $n = new Node(
-    NodeType::FREE(),
+    NodeType::U1U2(),
     'n1',
     14.3,
     -5,
@@ -32,5 +34,10 @@ $f2 = Force::constructFromArray(
     ]
 );
 
-OutputInfo::echoln($f);
-OutputInfo::echoln($f2);
+//OutputInfo::echoln($f);
+//OutputInfo::echoln($f2);
+
+
+$reactions = Reaction::constructFromNode($n);
+OutputInfo::printJSONln(ReactionType::U1()->equals($reactions[0]->getType()));
+OutputInfo::printJSONln($reactions);

@@ -63,7 +63,7 @@ class Beam implements JsonSerializable
     public function getSymbol(): string
     {
         if (is_null($this->symbol))
-            $this->symbol = 'B' . $this->startNode->getId() . $this->endNode->getId();
+            $this->symbol = 'B_' . $this->id;
 
         return $this->symbol;
     }
