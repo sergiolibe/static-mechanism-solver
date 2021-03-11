@@ -42,13 +42,15 @@ class SystemRequest implements JsonSerializable
     {
         $instance = new self();
 
-        foreach ($data['nodes'] as $nodeData) {
+        foreach ($data['nodes'] as $nodeId => $nodeData) {
+            $nodeData['id'] = $nodeId;
             $node = Node::constructFromArray($nodeData);
             $instance->addNode($node);
             unset($node);
         }
 
-        foreach ($data['beams'] as $beamData) {
+        foreach ($data['beams'] as $beamId => $beamData) {
+            $beamData['id'] = $beamId;
 
             $startNode = $instance->getNodeById((string)$beamData['startNode']);
             $beamData['_startNode'] = $beamData['startNode'];
@@ -67,7 +69,8 @@ class SystemRequest implements JsonSerializable
             unset($beam);
         }
 
-        foreach ($data['forces'] as $forceData) {
+        foreach ($data['forces'] as $forceId => $forceData) {
+            $forceData['id'] = $forceId;
 
             $forceNode = $instance->getNodeById((string)$forceData['node']);
             $forceData['_node'] = $forceData['node'];
