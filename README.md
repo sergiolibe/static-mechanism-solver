@@ -10,6 +10,11 @@ API to solve static mechanism systems. You should use the graphic client to cons
 composer install
 ```
 
+### Create Necessary folder
+```
+mkdir ./static_system_files
+```
+
 
 ### Turn on the server
 ```
