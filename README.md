@@ -4,6 +4,13 @@ API to solve static mechanism systems. You should use the graphic client to cons
 
 ## Setup
 
+
+### Install dependencies
+```
+composer install
+```
+
+
 ### Turn on the server
 ```
 php -S localhost:8080 -t public
