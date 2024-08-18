@@ -133,7 +133,7 @@ class Reaction implements JsonSerializable
 
     // Interfaces
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $arrayRepresentation = [];
         $arrayRepresentation['symbol'] = $this->symbol;

@@ -72,7 +72,7 @@ class Force implements JsonSerializable
 
     // Interfaces
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $arrayRepresentation = [];
         $arrayRepresentation['id'] = $this->id;

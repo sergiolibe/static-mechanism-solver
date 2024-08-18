@@ -87,7 +87,7 @@ class SystemRequest implements JsonSerializable
         return $instance;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $arrayRepresentation = [];
         $arrayRepresentation['nodes'] = $this->nodes;

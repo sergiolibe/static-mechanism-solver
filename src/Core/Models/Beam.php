@@ -34,7 +34,7 @@ class Beam implements JsonSerializable
         );
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $arrayRepresentation = [];
         $arrayRepresentation['id'] = $this->id;
