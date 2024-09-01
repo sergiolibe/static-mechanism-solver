@@ -8,7 +8,7 @@ import (
 	. "static_mechanism_solver/src/Core/Models"
 )
 
-type Beam struct {
+type Beamx struct {
 	ForceType ForceType `json:"type"`
 }
 
@@ -19,8 +19,9 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 func getHello(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("got /hello request\n")
 
-	b := Beam{}
-	b.ForceType = Defined
+	n1 := ConstructNode(Joint, "n1", 13.4, 12.3)
+	n2 := ConstructNode(Joint, "n2", 21.4, 2.2)
+	b := ConstructBeam(n1, n2, "b12")
 	//io.WriteString(w, "Hello, HTTP!\n")
 	err := json.NewEncoder(w).Encode(b)
 	if err != nil {
