@@ -1,6 +1,9 @@
 package Models
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type Reaction struct {
 	referenceId  string
@@ -66,9 +69,30 @@ func ResultReaction() Reaction {
 	return r
 }
 
+////////////////////
+
+func (r Reaction) GetType() ReactionType {
+	return r.reactionType
+}
+func (r Reaction) Print() string {
+	return fmt.Sprintf("referenceId:%s\nmagnitude:%f\nangle:%f\nradAngle:%f\nreactionType:%s\nsymbol:%s",
+		r.referenceId,
+		r.magnitude,
+		r.angle,
+		r.radAngle,
+		r.reactionType,
+		r.symbol,
+	)
+}
 func (r *Reaction) setAngle(angle float64) {
 	r.angle = angle
 	r.radAngle = angle * math.Pi / 180
+}
+func (r *Reaction) SetMagnitude(magnitude float64) {
+	r.magnitude = magnitude
+}
+func (r Reaction) GetMagnitude() float64 {
+	return r.magnitude
 }
 
 /*<?php
