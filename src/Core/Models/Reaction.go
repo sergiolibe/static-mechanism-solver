@@ -94,6 +94,9 @@ func (r *Reaction) SetMagnitude(magnitude float64) {
 func (r Reaction) GetMagnitude() float64 {
 	return r.magnitude
 }
+func (r Reaction) GetSymbol() string {
+	return r.symbol
+}
 
 /*<?php
 declare(strict_types=1);

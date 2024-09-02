@@ -1,13 +1,17 @@
 package Payload
 
-import . "static_mechanism_solver/src/Core/Models"
+import (
+	. "static_mechanism_solver/src/Core"
+	. "static_mechanism_solver/src/Core/Math"
+	. "static_mechanism_solver/src/Core/Models"
+)
 
 type SystemRequest struct {
 	nodes                 []Node
 	beams                 []Beam
 	forces                []Force
 	reactions             []Reaction
-	referenceSymbolMatrix [][]int
+	referenceSymbolMatrix map[string]int
 }
 
 func (s *SystemRequest) AddNode(n Node) { // _todo: maybe replace with n.Beams = append(n.Beams, b)
@@ -35,8 +39,49 @@ func (s SystemRequest) PrintReactions() string {
 	return text
 }
 
-// func (s SystemRequest) generateMatrix // _todo: implement
-// func (s SystemRequest) buildReferenceSymbolMatrix // _todo: implement
+func (s *SystemRequest) generateMatrix() [][]float64 {
+	//n := s.calcN()
+	s.buildReferenceSymbolMatrix()
+	c := len(s.referenceSymbolMatrix)
+	Ax := ZerosMatrix[float64](c-1, c)
+	i := 0
+	for _, node := range s.nodes {
+		// X for node
+		valuesBySymbol := node.GetValuesBySymbolByAxis(X)
+		for symbol, value := range valuesBySymbol {
+			Ax[i][s.referenceSymbolMatrix[symbol]] = value
+		}
+
+		// Y for node
+		valuesBySymbol = node.GetValuesBySymbolByAxis(Y)
+		for symbol, value := range valuesBySymbol {
+			Ax[i+1][s.referenceSymbolMatrix[symbol]] = value
+		}
+		i += 2
+	}
+	return Ax
+}
+func (s *SystemRequest) buildReferenceSymbolMatrix() {
+	// build $reactions array from nodes, beams and incognito force
+	// then build referenceSymbolMatrix from this array
+	if len(s.reactions) == 0 {
+		for _, b := range s.beams {
+			s.reactions = append(s.reactions, ConstructFromBeam(b))
+		}
+		for _, n := range s.nodes {
+			for _, r := range ConstructFromNode(n) {
+				s.reactions = append(s.reactions, r)
+			}
+		}
+		for _, f := range s.forces {
+			s.reactions = append(s.reactions, ConstructFromForce(f))
+		}
+		s.reactions = append(s.reactions, ResultReaction())
+	}
+	for i, r := range s.reactions {
+		s.referenceSymbolMatrix[r.GetSymbol()] = i
+	}
+}
 func (s SystemRequest) calcN() int {
 	n := 0
 	for _, node := range s.nodes {

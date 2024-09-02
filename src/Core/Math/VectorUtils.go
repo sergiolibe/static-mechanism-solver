@@ -18,10 +18,10 @@ func ScalarMultiply(vector []float64, scalar float64) []float64 {
 	return vector
 }
 
-func ZerosMatrix(rows int, columns int) [][]int {
-	m := make([][]int, rows)
+func ZerosMatrix[T any](rows int, columns int) [][]T {
+	m := make([][]T, rows)
 	for i, _ := range m {
-		m[i] = ZerosVector[int](columns)
+		m[i] = ZerosVector[T](columns)
 	}
 	return m
 }
