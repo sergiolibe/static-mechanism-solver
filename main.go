@@ -5,17 +5,67 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"static_mechanism_solver/src/Core/Math"
 	. "static_mechanism_solver/src/Core/Models"
+	"static_mechanism_solver/src/Payload"
 )
-
-type Beamx struct {
-	ForceType ForceType `json:"type"`
-}
 
 func getRoot(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("got / request\n")
 	io.WriteString(w, "This is my website!\n")
 }
+
+func StaticSystem(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
+	fmt.Printf("got / request\n%s\n", r.Method)
+	// Read the body of the request
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Unmarshal the JSON body into the struct
+	var d Payload.SolveSystemRequest
+	err = json.Unmarshal(body, &d)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Now you can use the 'data' variable which contains the parsed JSON data
+	//log.Printf("Received: %+v", data)
+
+	if d.Action != Payload.ACTION_SOLVE_SYSTEM {
+		http.Error(w, "action "+d.Action+" not supported", http.StatusBadRequest) // _todo: replace with ResponseBuilder.error
+		return
+	}
+
+	sd := d.SystemData
+
+	if sd == nil {
+		http.Error(w, "parameter system_data must be present and array_type", http.StatusBadRequest)
+		return
+	}
+
+	sr := Payload.ConstructSystemRequestFromArray(*sd)
+
+	Ax := sr.GenerateMatrix()
+	result := Math.Solve(Ax)
+	Math.ScalarMultiply(result, -1)
+	Math.RoundVector(result, 3)
+
+	reactions := sr.MapReactionsWithResults(result)
+
+	res := map[string][]Reaction{"list_of_reactions": reactions}
+
+	err = json.NewEncoder(w).Encode(res)
+	if err != nil {
+		io.WriteString(w, err.Error())
+	}
+}
+
 func getHello(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("got /hello request\n")
 
@@ -25,6 +75,7 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 	b2 := Beam{}
 	n2.AddBeam(b2)
 	//io.WriteString(w, "Hello, HTTP!\n")
+
 	err := json.NewEncoder(w).Encode(n2)
 	//io.WriteString(w, fmt.Sprintf("n2.u1symbol:%s", n2.GetU1Symbol()))
 	//io.WriteString(w, fmt.Sprintf("cos(n1):%f", b.GetCosOnNode(n1)))
@@ -36,10 +87,16 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 	}
 }
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST,OPTIONS")
+	(*w).Header().Set("Access-Control-Allow-Headers", "*")
+}
 
 func main() {
 	http.HandleFunc("/", getRoot)
 	http.HandleFunc("/hello", getHello)
+	http.HandleFunc("/static_system.php", StaticSystem)
 
-	_ = http.ListenAndServe(":3333", nil)
+	_ = http.ListenAndServe(":8080", nil)
 }

@@ -10,8 +10,8 @@ func TestMapReactionsWithResults(t *testing.T) {
 	r2 := Reaction{}
 	result := []float64{1.2, 3.4}
 	s := SystemRequest{}
-	s.AddReaction(r1)
-	s.AddReaction(r2)
+	s.addReaction(r1)
+	s.addReaction(r2)
 	rs := s.MapReactionsWithResults(result)
 
 	if rs[0].GetMagnitude() != 1.2 || rs[1].GetMagnitude() != 3.4 {

@@ -7,26 +7,41 @@ import (
 )
 
 type SystemRequest struct {
-	nodes                 []Node
-	beams                 []Beam
-	forces                []Force
+	nodes                 map[string]Node
+	beams                 map[string]Beam
+	forces                map[string]Force
 	reactions             []Reaction
 	referenceSymbolMatrix map[string]int
 }
 
+func ConstructSystemRequestFromArray(data SystemData) SystemRequest {
+	s := SystemRequest{}
+
+	return s
+}
+
 func (s *SystemRequest) AddNode(n Node) { // _todo: maybe replace with n.Beams = append(n.Beams, b)
-	s.nodes = append(s.nodes, n)
+	if s.nodes == nil {
+		s.nodes = map[string]Node{}
+	}
+	s.nodes[n.Id] = n
 }
 
 func (s *SystemRequest) AddBeam(b Beam) { // _todo: maybe replace with n.Beams = append(n.Beams, b)
-	s.beams = append(s.beams, b)
+	if s.beams == nil {
+		s.beams = map[string]Beam{}
+	}
+	s.beams[b.Id] = b
 }
 func (s *SystemRequest) AddForce(f Force) { // _todo: maybe replace with n.Beams = append(n.Beams, b)
-	s.forces = append(s.forces, f)
+	if s.forces == nil {
+		s.forces = map[string]Force{}
+	}
+	s.forces[f.Id] = f
 }
 
 // _todo: remove this
-func (s *SystemRequest) AddReaction(r Reaction) {
+func (s *SystemRequest) addReaction(r Reaction) {
 	s.reactions = append(s.reactions, r)
 }
 
@@ -39,7 +54,7 @@ func (s SystemRequest) PrintReactions() string {
 	return text
 }
 
-func (s *SystemRequest) generateMatrix() [][]float64 {
+func (s *SystemRequest) GenerateMatrix() [][]float64 {
 	//n := s.calcN()
 	s.buildReferenceSymbolMatrix()
 	c := len(s.referenceSymbolMatrix)
