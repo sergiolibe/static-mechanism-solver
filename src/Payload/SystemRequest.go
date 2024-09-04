@@ -27,8 +27,9 @@ func ConstructSystemRequestFromArray(data SystemData) SystemRequest {
 	for beamId, beamData := range data.Beams {
 		startNode := s.getNodeById(beamData.StartNode)
 		endNode := s.getNodeById(beamData.EndNode)
-		b := ConstructBeam(startNode, endNode, beamId)
+		b := ConstructBeam(*startNode, *endNode, beamId)
 
+		// _todo: beam is not being added to node even though we are using pointers :(
 		startNode.AddBeam(b)
 		endNode.AddBeam(b)
 		s.AddBeam(b)
@@ -45,28 +46,28 @@ func ConstructSystemRequestFromArray(data SystemData) SystemRequest {
 	return s
 }
 
-func (s SystemRequest) getNodeById(nodeId string) Node {
+func (s SystemRequest) getNodeById(nodeId string) *Node {
 	x, ok := s.nodes[nodeId]
 	if !ok {
 		panic("Node not found by id: " + nodeId)
 	}
-	return x
+	return &x
 }
 
-func (s SystemRequest) getBeamById(beamId string) Beam {
+func (s SystemRequest) getBeamById(beamId string) *Beam {
 	x, ok := s.beams[beamId]
 	if !ok {
 		panic("Beam not found by id: " + beamId)
 	}
-	return x
+	return &x
 }
 
-func (s SystemRequest) getForceById(forceId string) Force {
+func (s SystemRequest) getForceById(forceId string) *Force {
 	x, ok := s.forces[forceId]
 	if !ok {
 		panic("Force not found by id: " + forceId)
 	}
-	return x
+	return &x
 }
 
 func (s *SystemRequest) AddNode(n Node) { // _todo: maybe replace with n.Beams = append(n.Beams, b)

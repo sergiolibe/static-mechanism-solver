@@ -7,12 +7,41 @@ import (
 
 // _todo: make props public like ReferenceId
 type Reaction struct {
-	referenceId  string       `json:"referenceId,omitempty"`
-	magnitude    float64      `json:"magnitude,omitempty"`
-	angle        float64      `json:"angle,omitempty"`
-	radAngle     float64      `json:"radAngle,omitempty"`
-	reactionType ReactionType `json:"type,omitempty"`
-	symbol       string       `json:"symbol,omitempty"`
+	referenceId  string
+	magnitude    float64
+	angle        float64
+	radAngle     float64
+	reactionType ReactionType
+	symbol       string
+}
+
+type ReactionJSON struct {
+	Symbol      string       `json:"symbol"`
+	ReferenceId string       `json:"referenceId"`
+	Type        ReactionType `json:"type"`
+	Angle       float64      `json:"angle"`
+	RadAngle    float64      `json:"radAngle"`
+	Magnitude   float64      `json:"magnitude"`
+	Cos         float64      `json:"cos"`
+	Sin         float64      `json:"sin"`
+}
+
+func round(x float64, precision int) float64 {
+	p := math.Pow10(precision)
+	return math.Round(x*p) / p
+}
+
+func (r Reaction) ToReactionJSON() ReactionJSON {
+	return ReactionJSON{
+		Symbol:      r.symbol,
+		ReferenceId: r.referenceId,
+		Type:        r.reactionType,
+		Angle:       r.angle,
+		RadAngle:    r.radAngle,
+		Magnitude:   r.magnitude,
+		Cos:         round(math.Cos(r.radAngle), 3),
+		Sin:         round(math.Sin(r.radAngle), 3),
+	}
 }
 
 func ConstructFromNode(n Node) []Reaction {

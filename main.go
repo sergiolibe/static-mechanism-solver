@@ -65,7 +65,12 @@ func StaticSystem(w http.ResponseWriter, r *http.Request) {
 
 	reactions := sr.MapReactionsWithResults(result)
 
-	res := map[string][]Reaction{"list_of_reactions": reactions}
+	var rsJSON []ReactionJSON
+	for _, r := range reactions {
+		rsJSON = append(rsJSON, r.ToReactionJSON())
+	}
+
+	res := map[string][]ReactionJSON{"list_of_reactions": rsJSON}
 
 	err = json.NewEncoder(w).Encode(res)
 	if err != nil {
