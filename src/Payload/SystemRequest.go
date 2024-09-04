@@ -17,7 +17,56 @@ type SystemRequest struct {
 func ConstructSystemRequestFromArray(data SystemData) SystemRequest {
 	s := SystemRequest{}
 	s.referenceSymbolMatrix = map[string]int{}
+
+	for nodeId, nodeData := range data.Nodes {
+		n := ConstructNode(NodeType(nodeData.Type), nodeId, nodeData.X, nodeData.Y)
+
+		s.AddNode(n)
+	}
+
+	for beamId, beamData := range data.Beams {
+		startNode := s.getNodeById(beamData.StartNode)
+		endNode := s.getNodeById(beamData.EndNode)
+		b := ConstructBeam(startNode, endNode, beamId)
+
+		startNode.AddBeam(b)
+		endNode.AddBeam(b)
+		s.AddBeam(b)
+	}
+
+	for forceId, forceData := range data.Forces {
+		forceNode := s.getNodeById(forceData.Node)
+		f := ConstructForce(ForceType(forceData.Type), forceId, forceData.Magnitude, forceData.Angle)
+
+		forceNode.AddForce(f)
+		s.AddForce(f)
+	}
+
 	return s
+}
+
+func (s SystemRequest) getNodeById(nodeId string) Node {
+	x, ok := s.nodes[nodeId]
+	if !ok {
+		panic("Node not found by id: " + nodeId)
+	}
+	return x
+}
+
+func (s SystemRequest) getBeamById(beamId string) Beam {
+	x, ok := s.beams[beamId]
+	if !ok {
+		panic("Beam not found by id: " + beamId)
+	}
+	return x
+}
+
+func (s SystemRequest) getForceById(forceId string) Force {
+	x, ok := s.forces[forceId]
+	if !ok {
+		panic("Force not found by id: " + forceId)
+	}
+	return x
 }
 
 func (s *SystemRequest) AddNode(n Node) { // _todo: maybe replace with n.Beams = append(n.Beams, b)

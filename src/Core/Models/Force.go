@@ -15,6 +15,18 @@ type Force struct {
 	Angle     float64
 }
 
+func ConstructForce(forceType ForceType, id string, magnitude *float64, angle float64) Force {
+	f := Force{}
+	f.ForceType = forceType
+	f.Id = id
+	f.Angle = angle
+	if magnitude == nil {
+		f.Magnitude = 0.0
+	} else {
+		f.Magnitude = *magnitude
+	}
+	return f
+}
 func (f Force) GetSymbol() string {
 	if f.symbol == nil { // _todo: cache this
 		return "F_" + f.Id

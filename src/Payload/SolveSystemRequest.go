@@ -14,14 +14,14 @@ type SystemData struct {
 }
 
 type beam struct {
-	StartNode string `json:"start_node,omitempty"`
-	EndNode   string `json:"end_node,omitempty"`
+	StartNode string `json:"startNode,omitempty"`
+	EndNode   string `json:"endNode,omitempty"`
 }
 
 type node struct {
-	X    int    `json:"x,omitempty"`
-	Y    int    `json:"y,omitempty"`
-	Type string `json:"type,omitempty"`
+	X    float64 `json:"x,omitempty"`
+	Y    float64 `json:"y,omitempty"`
+	Type string  `json:"type,omitempty"`
 }
 
 type force struct {

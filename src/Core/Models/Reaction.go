@@ -5,13 +5,14 @@ import (
 	"math"
 )
 
+// _todo: make props public like ReferenceId
 type Reaction struct {
-	referenceId  string
-	magnitude    float64
-	angle        float64
-	radAngle     float64
-	reactionType ReactionType
-	symbol       string
+	referenceId  string       `json:"referenceId,omitempty"`
+	magnitude    float64      `json:"magnitude,omitempty"`
+	angle        float64      `json:"angle,omitempty"`
+	radAngle     float64      `json:"radAngle,omitempty"`
+	reactionType ReactionType `json:"type,omitempty"`
+	symbol       string       `json:"symbol,omitempty"`
 }
 
 func ConstructFromNode(n Node) []Reaction {
