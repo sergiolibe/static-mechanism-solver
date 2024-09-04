@@ -17,7 +17,7 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 
 func StaticSystem(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
-	fmt.Printf("got /static_system.php request: %s\n", r.Method)
+	//fmt.Printf("got /static_system.php request: %s\n", r.Method)
 
 	if r.Method == http.MethodOptions {
 		http.Error(w, "{\"success\":false,\"errormessage\":\"method OPTIONS not supported\"}", http.StatusOK)
@@ -85,7 +85,7 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 	n2 := ConstructNode(U1U2, "n2", 21.4, 2.2)
 	//b := ConstructBeam(n1, n2, "b12")
 	b2 := Beam{}
-	n2.AddBeam(b2)
+	n2.AddBeam(&b2)
 	//io.WriteString(w, "Hello, HTTP!\n")
 
 	err := json.NewEncoder(w).Encode(n2)

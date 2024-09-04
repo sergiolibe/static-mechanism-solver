@@ -23,23 +23,23 @@ func TestCalcN(t *testing.T) {
 	s := SystemRequest{}
 	// N=1
 	n1 := ConstructNode(U1, "n1", 0, 0)
-	n1.AddForce(Force{ForceType: Defined})
-	s.AddNode(n1)
+	n1.AddForce(&Force{ForceType: Defined})
+	s.AddNode(&n1)
 
 	// N=2
 	n2 := ConstructNode(U1U2, "n2", 0, 0)
-	n2.AddForce(Force{ForceType: Defined})
-	s.AddNode(n2)
+	n2.AddForce(&Force{ForceType: Defined})
+	s.AddNode(&n2)
 
 	// N=2
 	n3 := ConstructNode(U2, "n3", 0, 0)
-	n3.AddForce(Force{ForceType: Unknown})
-	s.AddNode(n3)
+	n3.AddForce(&Force{ForceType: Unknown})
+	s.AddNode(&n3)
 
 	// N=3
 	n4 := ConstructNode(U1U2, "n4", 0, 0)
-	n4.AddForce(Force{ForceType: Unknown})
-	s.AddNode(n4)
+	n4.AddForce(&Force{ForceType: Unknown})
+	s.AddNode(&n4)
 
 	expected := 8
 	result := s.calcN()

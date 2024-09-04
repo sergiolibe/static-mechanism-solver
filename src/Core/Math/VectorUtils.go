@@ -11,7 +11,6 @@ func RoundVector(vector []float64, precision int) []float64 {
 }
 
 func ScalarMultiply(vector []float64, scalar float64) []float64 {
-
 	for i, e := range vector {
 		vector[i] = e * scalar
 	}
@@ -25,6 +24,7 @@ func ZerosMatrix[T any](rows int, columns int) [][]T {
 	}
 	return m
 }
+
 func ZerosVector[T any](entries int) []T {
 	return make([]T, entries)
 }
