@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"reflect"
+	"sort"
 	"static_mechanism_solver/src/Core/Math"
 	. "static_mechanism_solver/src/Core/Models"
 	"static_mechanism_solver/src/Payload"
@@ -35,14 +37,19 @@ func TestStaticSystem(t *testing.T) {
 		rsJSON = append(rsJSON, r.ToReactionJSON())
 	}
 
-	res := map[string][]ReactionJSON{"list_of_reactions": rsJSON}
+	actual := Payload.SolveSystemResponse{ListOfReactions: rsJSON, Success: true}
 
-	jsonBytes, err := json.Marshal(res)
-	if err != nil {
-		t.Errorf("Failed encoding the response as JSON")
-	}
-	actual := string(jsonBytes)
-	if actual != RES {
+	var expected Payload.SolveSystemResponse
+	err = json.Unmarshal([]byte(RES), &expected)
+
+	sort.Slice(actual.ListOfReactions, func(i, j int) bool {
+		return actual.ListOfReactions[i].Symbol < actual.ListOfReactions[j].Symbol
+	})
+	sort.Slice(expected.ListOfReactions, func(i, j int) bool {
+		return expected.ListOfReactions[i].Symbol < expected.ListOfReactions[j].Symbol
+	})
+
+	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Response is not correct")
 	}
 }

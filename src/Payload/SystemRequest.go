@@ -17,12 +17,10 @@ type SystemRequest struct {
 func ConstructSystemRequestFromArray(data SystemData) SystemRequest {
 	s := SystemRequest{}
 	s.referenceSymbolMatrix = map[string]int{}
-	k := 1
 	for nodeId, nodeData := range data.Nodes {
 		n := ConstructNode(NodeType(nodeData.Type), nodeId, nodeData.X, nodeData.Y)
 
 		s.AddNode(&n)
-		k += 1
 	}
 
 	for beamId, beamData := range data.Beams {
@@ -30,11 +28,9 @@ func ConstructSystemRequestFromArray(data SystemData) SystemRequest {
 		endNode := s.getNodeById(beamData.EndNode)
 		b := ConstructBeam(*startNode, *endNode, beamId)
 
-		// _todo: beam is not being added to node even though we are using pointers :(
 		startNode.AddBeam(&b)
 		endNode.AddBeam(&b)
 		s.AddBeam(&b)
-		k += 1
 	}
 
 	for forceId, forceData := range data.Forces {
@@ -43,7 +39,6 @@ func ConstructSystemRequestFromArray(data SystemData) SystemRequest {
 
 		forceNode.AddForce(&f)
 		s.AddForce(&f)
-		k += 1
 	}
 
 	return s

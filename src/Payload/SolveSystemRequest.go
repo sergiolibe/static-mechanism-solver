@@ -1,5 +1,7 @@
 package Payload
 
+import "static_mechanism_solver/src/Core/Models"
+
 const ACTION_SOLVE_SYSTEM = "solve_system"
 
 type SolveSystemRequest struct {
@@ -29,4 +31,9 @@ type force struct {
 	Type      string   `json:"type,omitempty"`
 	Node      string   `json:"node,omitempty"`
 	Magnitude *float64 `json:"magnitude,omitempty"`
+}
+
+type SolveSystemResponse struct {
+	ListOfReactions []Models.ReactionJSON `json:"list_of_reactions"`
+	Success         bool                  `json:"success"`
 }

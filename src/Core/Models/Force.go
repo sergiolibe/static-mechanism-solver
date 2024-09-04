@@ -20,6 +20,7 @@ func ConstructForce(forceType ForceType, id string, magnitude *float64, angle fl
 	f.ForceType = forceType
 	f.Id = id
 	f.Angle = angle
+	f.RadAngle = f.toRadians(f.Angle)
 	if magnitude == nil {
 		f.Magnitude = 0.0
 	} else {

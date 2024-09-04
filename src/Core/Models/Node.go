@@ -55,9 +55,7 @@ func (n Node) GetValuesBySymbolByAxis(axis Axis) map[string]float64 {
 	valuesBySymbol := map[string]float64{}
 
 	r := R_Result
-	k := 1
 	if axis == X {
-		k += 1
 		for _, b := range n.Beams {
 			valuesBySymbol[b.GetSymbol()] = b.GetCosOnNode(n)
 		}
@@ -72,7 +70,6 @@ func (n Node) GetValuesBySymbolByAxis(axis Axis) map[string]float64 {
 			}
 		}
 	} else if axis == Y {
-		k += 1
 		for _, b := range n.Beams {
 			valuesBySymbol[b.GetSymbol()] = b.GetSinOnNode(n)
 		}

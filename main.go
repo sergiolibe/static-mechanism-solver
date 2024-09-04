@@ -70,7 +70,7 @@ func StaticSystem(w http.ResponseWriter, r *http.Request) {
 		rsJSON = append(rsJSON, r.ToReactionJSON())
 	}
 
-	res := map[string][]ReactionJSON{"list_of_reactions": rsJSON}
+	res := Payload.SolveSystemResponse{ListOfReactions: rsJSON, Success: true}
 
 	err = json.NewEncoder(w).Encode(res)
 	if err != nil {

@@ -45,6 +45,9 @@ func (r Reaction) ToReactionJSON() ReactionJSON {
 }
 
 func ConstructFromNode(n Node) []Reaction {
+	if n.nodeType == Joint || n.nodeType == Free {
+		return []Reaction{}
+	}
 	var reactionTypes []ReactionType
 	if n.nodeType == U1U2 {
 		reactionTypes = append(reactionTypes, R_U1, R_U2)
