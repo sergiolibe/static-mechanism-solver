@@ -16,7 +16,7 @@ type SystemRequest struct {
 
 func ConstructSystemRequestFromArray(data SystemData) SystemRequest {
 	s := SystemRequest{}
-
+	s.referenceSymbolMatrix = map[string]int{}
 	return s
 }
 

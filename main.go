@@ -17,11 +17,17 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 
 func StaticSystem(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
-	fmt.Printf("got / request\n%s\n", r.Method)
+	fmt.Printf("got /static_system.php request: %s\n", r.Method)
+
+	if r.Method == http.MethodOptions {
+		http.Error(w, "{\"success\":false,\"errormessage\":\"method OPTIONS not supported\"}", http.StatusOK)
+		return
+	}
+
 	// Read the body of the request
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		http.Error(w, "{\"success\":false,\"errormessage\":\"Unable to read request body\"}", http.StatusOK)
 		return
 	}
 	defer r.Body.Close()
@@ -30,7 +36,8 @@ func StaticSystem(w http.ResponseWriter, r *http.Request) {
 	var d Payload.SolveSystemRequest
 	err = json.Unmarshal(body, &d)
 	if err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		//w.Header().Set("Content-Type", "application/json; charset=UTF-8");
+		http.Error(w, "{\"success\":false,\"errormessage\":\"Invalid JSON\"}", http.StatusOK)
 		return
 	}
 
